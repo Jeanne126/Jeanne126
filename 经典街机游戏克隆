@@ -2,7 +2,7 @@
 var Enemy = function(x,y,speed) {
     // 要应用到每个敌人的实例的变量写在这里
     // 我们已经提供了一个来帮助你实现更多
-    this.x=-50;
+    this.x=x;
     this.y=y;
     this.speed=Math.random()*100;
     // 敌人的图片或者雪碧图，用一个我们提供的工具函数来轻松的加载文件
@@ -14,9 +14,10 @@ Enemy.prototype.update = function(dt) {
     // 你应该给每一次的移动都乘以 dt 参数，以此来保证游戏在所有的电脑上
     // 都是以同样的速度运行的
     this.x += this.speed*dt;
+    //bug从右边消失，从左边循环出现
     if (this.x>=505) {
     this.x=-50;
-};
+    };
 };
 
 
@@ -31,18 +32,27 @@ Enemy.prototype.render = function() {
 // 现在实现你自己的玩家类
 // 这个类需要一个 update() 函数， render() 函数和一个 handleInput()函数
 var Player=function(x,y){
-    this.x=202;
+    this.x=x;
     this.y=y;
-    this.sprite = 'images/char-boy.png'; //画布大小505*606，主体大小505*536，player画布101*171
+    this.sprite='images/char-boy.png';
 };
 
+
+Player.prototype.checkCollisions = function(){
+    for(var i=0;i<allEnemies.length;i++){
+        if(Math.abs(this.x - allEnemies[i].x)<55){
+            if((Math.abs(this.y - allEnemies[i].y))<40){
+                this.x =202;
+                this.y =83*5+50-63;
+            }else{
+                return Player(x,y);
+            };
+       };
+    };
+};
 Player.prototype.update=function(){
-    /*if (Math.abs(Enemy.x-Player.x)<=101 || Math.abs(Enemy.y-Player.y)<=83){
-      Player(202,83*5);  
-    };*/
-    /*if (this.y=0) {
-        this.y=83*5;
-    };*/
+    Player.prototype.checkCollisions();
+
 };
 
 Player.prototype.handleInput=function(allowedKeys){
@@ -59,12 +69,13 @@ Player.prototype.handleInput=function(allowedKeys){
     //防止player超出画布
     if (this.x<0) {
         this.x=0;
-    }else if (this.x>505) {
+    }else if (this.x>404) {
         this.x=404; //宽101*4
-    }else if (this.y<0) {
-        this.y=83*5;
+    }else if (this.y<-50) {
+        this.x=202;
+        this.y=83*5+50-63;
     }else if (this.y>83*5) {
-        this.y=83*5; //高83*5
+        this.y=83*5+50-63; 
     }
 };
 Player.prototype.render=function(){
@@ -75,15 +86,15 @@ Player.prototype.render=function(){
 // 现在实例化你的所有对象
 // 把所有敌人的对象都放进一个叫 allEnemies 的数组里面
 // 把玩家对象放进一个叫 player 的变量里面
-var allEnemies=[new Enemy()];
+var allEnemies=[];
 for (var i = 0; i < 6; i++) { //随机产生6个enemy，每个enemy的y值不同，速度随机产生
-    var enemy=new Enemy(0,Math.floor(Math.random()*3)*83+55);
+    var enemy=new Enemy(0,Math.floor(Math.random()*3)*83+61.5);//50-78+6.5+83
     allEnemies.push(enemy);  //把实例化的enemy放到allEnemies数组中
 };
 
 
 
-var player=new Player(202,83*4+78);
+var player=new Player(202,83*5+50-63);//河上方有50像素的空白，player上方有63像素的空白
 
 // 这段代码监听游戏玩家的键盘点击事件并且代表将按键的关键数字送到 Play.handleInput()
 // 方法里面。你不需要再更改这段代码了。
